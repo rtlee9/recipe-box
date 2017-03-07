@@ -25,11 +25,11 @@ def save_picture(recipes_raw, url):
             link = recipe['picture_link']
             if link is not None:
                 try:
-                    if 'foodnetwork' in url:
-                        urllib.request.urlretrieve(link, path_save)
-                    elif 'epicurious' in url:
+                    if 'epicurious' in url:
                         img_url = 'https://{}'.format(link[2:])
                         urllib.request.urlretrieve(img_url, path_save)
+                    else:
+                        urllib.request.urlretrieve(link, path_save)
                 except:
                     print('Could not download image from {}'.format(link))
 
@@ -45,5 +45,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--filename', type=str, default='recipes_raw.json',
                         help='Recipe JSON file')
+    parser.add_argument('--status', type=int, default=50, help='Print status interval')
     args = parser.parse_args()
-    main(args.filename)
+    main(args.filename, args.status)

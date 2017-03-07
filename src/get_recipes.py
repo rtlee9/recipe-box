@@ -66,6 +66,25 @@ def get_all_recipes_fn(page_str, page_num):
         print('Could not parse page {}'.format(url))
         return []
 
+
+def get_all_recipes_ar(page_num):
+    base_url = 'http://allrecipes.com'
+    search_url_str = 'recipes/?page'
+    url = '{}/{}={}'.format(base_url, search_url_str, page_num)
+
+    try:
+        soup = BeautifulSoup(request.urlopen(
+            request.Request(url, headers=HEADERS)).read(), "html.parser")
+        recipe_link_items = soup.select('article > a:nth-of-type(1)')
+        recipe_links = list(set(
+            [r['href'] for r in recipe_link_items
+             if r is not None and r['href'].split('/')[1] == 'recipe']))
+        return {base_url + r: get_recipe(base_url + r) for r in recipe_links}
+    except HTTPError:
+        print('Could not parse page {}'.format(url))
+        return []
+
+
 def get_all_recipes_epi(page_num):
     base_url = 'http://www.epicurious.com'
     search_url_str = 'search/?content=recipe&page'
@@ -96,6 +115,22 @@ def scrape_epi(start_page=1, num_pages=1916, status_interval=50):
     # Save to disk as JSON
     with open(path.join(config.path_data, 'recipes_raw_epi.json'), 'w') as f:
         json.dump(recipes_epi, f)
+
+
+def scrape_ar(start_page=1, num_pages=1916, status_interval=50):
+
+    recipes = {}
+    start = time.time()
+    for i in range(start_page, num_pages + start_page):
+        recipes.update(get_all_recipes_ar(i))
+        if i % status_interval == 0:
+            print('Scraping page {} of {}'.format(i + 1 - start_page, num_pages))
+    print('Scraped {} recipes from {} in {:.0f} minutes'.format(
+        len(recipes), 'Allrecipes.com', (time.time() - start) / 60))
+
+    # Save to disk as JSON
+    with open(path.join(config.path_data, 'recipes_raw_ar.json'), 'w') as f:
+        json.dump(recipes, f)
 
 
 def scrape_fn():
@@ -142,3 +177,5 @@ if __name__ == '__main__':
         scrape_fn()
     if args.epi:
         scrape_epi(args.start, args.pages, args.status)
+    if args.ar:
+        scrape_ar(args.start, args.pages, args.status)
