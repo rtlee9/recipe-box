@@ -1,7 +1,7 @@
 import json
 import time
 from urllib import request
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from bs4 import BeautifulSoup
 
 import sys
@@ -62,7 +62,7 @@ def get_all_recipes_fn(page_str, page_num):
         recipe_links = [r.attrs['href']for r in recipe_link_items]
         print('Read {} recipe links from {}'.format(len(recipe_links), url))
         return {r: get_recipe(r) for r in recipe_links}
-    except HTTPError:
+    except (HTTPError, URLError):
         print('Could not parse page {}'.format(url))
         return []
 
@@ -80,7 +80,7 @@ def get_all_recipes_ar(page_num):
             [r['href'] for r in recipe_link_items
              if r is not None and r['href'].split('/')[1] == 'recipe']))
         return {base_url + r: get_recipe(base_url + r) for r in recipe_links}
-    except HTTPError:
+    except (HTTPError, URLError):
         print('Could not parse page {}'.format(url))
         return []
 
@@ -96,7 +96,7 @@ def get_all_recipes_epi(page_num):
         recipe_link_items = soup.select('div.results-group article.recipe-content-card a.view-complete-item')
         recipe_links = [r['href'] for r in recipe_link_items]
         return {base_url + r: get_recipe(base_url + r) for r in recipe_links}
-    except HTTPError:
+    except (HTTPError, URLError):
         print('Could not parse page {}'.format(url))
         return []
 
@@ -147,7 +147,7 @@ def scrape_fn():
             request.Request(url, headers=HEADERS)).read(), "html.parser")
         page_link_items = soup.select('ul.o-IndexPagination__m-List li a')
         page_links = [p['href'] for p in page_link_items]
-    except HTTPError:
+    except (HTTPError, URLError):
         print('Could not parse page {}'.format(url))
 
     for i, page in enumerate(page_links):
