@@ -109,14 +109,11 @@ def scrape_epi(start_page=1, num_pages=1916, status_interval=50):
         recipes.update(get_all_recipes_epi(i))
         if i % status_interval == 0:
             print('Scraping page {} of {}'.format(i + 1 - start_page, num_pages))
-            with open(path.join(config.path_data, 'recipes_raw_epi.json'), 'w') as f:
-                json.dump(recipes, f)
+            quick_save('epi', recipes)
+
     print('Scraped {} recipes from {} in {:.0f} minutes'.format(
         len(recipes), 'Epicurious.com', (time.time() - start) / 60))
-
-    # Save to disk as JSON
-    with open(path.join(config.path_data, 'recipes_raw_epi.json'), 'w') as f:
-        json.dump(recipes, f)
+    quick_save('epi', recipes)
 
 
 def scrape_ar(start_page=1, num_pages=1916, status_interval=50):
@@ -127,14 +124,11 @@ def scrape_ar(start_page=1, num_pages=1916, status_interval=50):
         recipes.update(get_all_recipes_ar(i))
         if i % status_interval == 0:
             print('Scraping page {} of {}'.format(i + 1 - start_page, num_pages))
-            with open(path.join(config.path_data, 'recipes_raw_ar.json'), 'w') as f:
-                json.dump(recipes, f)
+            quick_save('ar', recipes)
+
     print('Scraped {} recipes from {} in {:.0f} minutes'.format(
         len(recipes), 'Allrecipes.com', (time.time() - start) / 60))
-
-    # Save to disk as JSON
-    with open(path.join(config.path_data, 'recipes_raw_ar.json'), 'w') as f:
-        json.dump(recipes, f)
+    quick_save('ar', recipes)
 
 
 def scrape_fn():
@@ -161,13 +155,19 @@ def scrape_fn():
             recipe_set = get_all_recipes_fn(path.basename(page), page_num)
             recipes.update(recipe_set)
             page_num += 1
-        with open(path.join(config.path_data, 'recipes_raw_fn.json'), 'w') as f:
-            json.dump(recipes, f)
+        quick_save('fn', recipes)
+
     print('Scraped {} recipes from {} in {:.0f} minutes'.format(
         len(recipes), 'Epicurious.com', (time.time() - start) / 60))
+    quick_save('fn', recipes)
 
-    # Save to disk as JSON
-    with open(path.join(config.path_data, 'recipes_raw_fn.json'), 'w') as f:
+def quick_save(site_str, recipes):
+    save_recipes(
+        path.join(config.path_data, 'recipes_raw_{}.json'.format(site_str)),
+        recipes)
+
+def save_recipes(filename, recipes):
+    with open(filename, 'w') as f:
         json.dump(recipes, f)
 
 if __name__ == '__main__':
