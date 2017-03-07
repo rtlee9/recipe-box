@@ -103,18 +103,20 @@ def get_all_recipes_epi(page_num):
 
 def scrape_epi(start_page=1, num_pages=1916, status_interval=50):
 
-    recipes_epi = {}
+    recipes = {}
     start = time.time()
     for i in range(start_page, num_pages + start_page):
-        recipes_epi.update(get_all_recipes_epi(i))
+        recipes.update(get_all_recipes_epi(i))
         if i % status_interval == 0:
             print('Scraping page {} of {}'.format(i + 1 - start_page, num_pages))
+            with open(path.join(config.path_data, 'recipes_raw_epi.json'), 'w') as f:
+                json.dump(recipes, f)
     print('Scraped {} recipes from {} in {:.0f} minutes'.format(
-        len(recipes_epi), 'Epicurious.com', (time.time() - start) / 60))
+        len(recipes), 'Epicurious.com', (time.time() - start) / 60))
 
     # Save to disk as JSON
     with open(path.join(config.path_data, 'recipes_raw_epi.json'), 'w') as f:
-        json.dump(recipes_epi, f)
+        json.dump(recipes, f)
 
 
 def scrape_ar(start_page=1, num_pages=1916, status_interval=50):
@@ -125,6 +127,8 @@ def scrape_ar(start_page=1, num_pages=1916, status_interval=50):
         recipes.update(get_all_recipes_ar(i))
         if i % status_interval == 0:
             print('Scraping page {} of {}'.format(i + 1 - start_page, num_pages))
+            with open(path.join(config.path_data, 'recipes_raw_ar.json'), 'w') as f:
+                json.dump(recipes, f)
     print('Scraped {} recipes from {} in {:.0f} minutes'.format(
         len(recipes), 'Allrecipes.com', (time.time() - start) / 60))
 
@@ -134,7 +138,7 @@ def scrape_ar(start_page=1, num_pages=1916, status_interval=50):
 
 
 def scrape_fn():
-    recipes_fn = {}
+    recipes = {}
     start = time.time()
 
     # get list of pages with links to recipes
@@ -155,14 +159,16 @@ def scrape_fn():
         recipe_set = True
         while recipe_set:
             recipe_set = get_all_recipes_fn(path.basename(page), page_num)
-            recipes_fn.update(recipe_set)
+            recipes.update(recipe_set)
             page_num += 1
+        with open(path.join(config.path_data, 'recipes_raw_fn.json'), 'w') as f:
+            json.dump(recipes, f)
     print('Scraped {} recipes from {} in {:.0f} minutes'.format(
-        len(recipes_fn), 'Epicurious.com', (time.time() - start) / 60))
+        len(recipes), 'Epicurious.com', (time.time() - start) / 60))
 
     # Save to disk as JSON
     with open(path.join(config.path_data, 'recipes_raw_fn.json'), 'w') as f:
-        json.dump(recipes_fn, f)
+        json.dump(recipes, f)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
