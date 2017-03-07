@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 
 import sys
 from os import path
+import argparse
 
 import config
 sys.path.append(config.path_scrapers)
@@ -129,4 +130,15 @@ def scrape_fn():
         json.dump(recipes_fn, f)
 
 if __name__ == '__main__':
-    scrape_fn()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--fn', action='store_true', help='Food Network')
+    parser.add_argument('--epi', action='store_true', help='Epicurious')
+    parser.add_argument('--ar', action='store_true', help='All Recipes')
+    parser.add_argument('--status', type=int, default=50, help='Print status interval')
+    parser.add_argument('--start', type=int, default=1, help='Start page')
+    parser.add_argument('--pages', type=int, default=3000, help='Number of pages to scrape')
+    args = parser.parse_args()
+    if args.fn:
+        scrape_fn()
+    if args.epi:
+        scrape_epi(args.start, args.pages, args.status)
