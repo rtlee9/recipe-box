@@ -13,7 +13,7 @@ def load_recipes(filename):
     """
     with open(path.join(config.path_data, filename), 'r') as f:
         recipes_raw = json.load(f)
-    print('{:,} pictures loaded from disk.'.format(len(recipes_raw)))
+    print('{:,} recipes loaded from disk.'.format(len(recipes_raw)))
     return recipes_raw
 
 def save_picture(recipes_raw, url):
