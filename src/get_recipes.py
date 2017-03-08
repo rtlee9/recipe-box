@@ -102,25 +102,24 @@ def get_all_recipes_epi(page_num):
         return []
 
 
-def scrape_recipe_box(scraper, site_str, start_page=1, num_pages=2000, status_interval=50):
+def scrape_recipe_box(scraper, site_str, page_iter, status_interval=50):
 
     if args.append:
         recipes = quick_load(site_str)
     else:
         recipes = {}
-    page_range = range(start_page, num_pages + start_page)
     start = time.time()
     if args.multi:
         pool = Pool(cpu_count() * 2)
-        results = pool.map(get_all_recipes_epi, page_range)
+        results = pool.map(scraper, page_iter)
         for r in results:
             recipes.update(r)
     else:
-        for i in page_range:
+        for i in page_iter:
             recipes.update(scraper(i))
             if i % status_interval == 0:
-                print('Scraping page {} of {}'.format(i + 1 - start_page, num_pages))
-                quick_save('ar', recipes)
+                print('Scraping page {} of {}'.format(i, max(page_iter)))
+                quick_save(site_str, recipes)
             time.sleep(args.sleep)
 
     print('Scraped {} recipes from {} in {:.0f} minutes'.format(
@@ -195,6 +194,8 @@ if __name__ == '__main__':
     if args.fn:
         scrape_fn()
     if args.epi:
-        scrape_recipe_box(get_all_recipes_epi, 'epi', args.start, args.pages, args.status)
+        page_iter = range(args.start, args.pages + args.start)
+        scrape_recipe_box(get_all_recipes_epi, 'epi', page_iter, args.status)
     if args.ar:
-        scrape_recipe_box(get_all_recipes_ar, 'ar', args.start, args.pages, args.status)
+        page_iter = range(args.start, args.pages + args.start)
+        scrape_recipe_box(get_all_recipes_ar, 'ar', page_iter, args.status)
