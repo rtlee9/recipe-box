@@ -101,40 +101,22 @@ def get_all_recipes_epi(page_num):
         return []
 
 
-def scrape_epi(start_page=1, num_pages=1916, status_interval=50):
+def scrape_pages(scraper, site_str, start_page=1, num_pages=2000, status_interval=50):
 
     if args.append:
-        recipes = quick_load('epi')
+        recipes = quick_load(site_str)
     else:
         recipes = {}
     start = time.time()
     for i in range(start_page, num_pages + start_page):
-        recipes.update(get_all_recipes_epi(i))
-        if i % status_interval == 0:
-            print('Scraping page {} of {}'.format(i + 1 - start_page, num_pages))
-            quick_save('epi', recipes)
-
-    print('Scraped {} recipes from {} in {:.0f} minutes'.format(
-        len(recipes), 'Epicurious.com', (time.time() - start) / 60))
-    quick_save('epi', recipes)
-
-
-def scrape_ar(start_page=1, num_pages=1916, status_interval=50):
-
-    if args.append:
-        recipes = quick_load('ar')
-    else:
-        recipes = {}
-    start = time.time()
-    for i in range(start_page, num_pages + start_page):
-        recipes.update(get_all_recipes_ar(i))
+        recipes.update(scraper(i))
         if i % status_interval == 0:
             print('Scraping page {} of {}'.format(i + 1 - start_page, num_pages))
             quick_save('ar', recipes)
 
     print('Scraped {} recipes from {} in {:.0f} minutes'.format(
-        len(recipes), 'Allrecipes.com', (time.time() - start) / 60))
-    quick_save('ar', recipes)
+        len(recipes), site_str, (time.time() - start) / 60))
+    quick_save(site_str, recipes)
 
 
 def scrape_fn():
@@ -201,6 +183,6 @@ if __name__ == '__main__':
     if args.fn:
         scrape_fn()
     if args.epi:
-        scrape_epi(args.start, args.pages, args.status)
+        scrape_recipe_box(get_all_recipes_epi, 'epi', args.start, args.pages, args.status)
     if args.ar:
-        scrape_ar(args.start, args.pages, args.status)
+        scrape_recipe_box(get_all_recipes_ar, 'ar', args.start, args.pages, args.status)
