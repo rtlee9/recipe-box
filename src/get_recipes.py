@@ -103,7 +103,10 @@ def get_all_recipes_epi(page_num):
 
 def scrape_epi(start_page=1, num_pages=1916, status_interval=50):
 
-    recipes = {}
+    if args.append:
+        recipes = quick_load('epi')
+    else:
+        recipes = {}
     start = time.time()
     for i in range(start_page, num_pages + start_page):
         recipes.update(get_all_recipes_epi(i))
@@ -118,7 +121,10 @@ def scrape_epi(start_page=1, num_pages=1916, status_interval=50):
 
 def scrape_ar(start_page=1, num_pages=1916, status_interval=50):
 
-    recipes = {}
+    if args.append:
+        recipes = quick_load('ar')
+    else:
+        recipes = {}
     start = time.time()
     for i in range(start_page, num_pages + start_page):
         recipes.update(get_all_recipes_ar(i))
@@ -132,7 +138,10 @@ def scrape_ar(start_page=1, num_pages=1916, status_interval=50):
 
 
 def scrape_fn():
-    recipes = {}
+    if args.append:
+        recipes = quick_load('fn')
+    else:
+        recipes = {}
     start = time.time()
 
     # get list of pages with links to recipes
@@ -161,6 +170,14 @@ def scrape_fn():
         len(recipes), 'Epicurious.com', (time.time() - start) / 60))
     quick_save('fn', recipes)
 
+def quick_load(site_str):
+    return load_recipes(path.join(
+        config.path_data, 'recipes_raw_{}.json'.format(site_str)))
+
+def load_recipes(filename):
+    with open(filename, 'r') as f:
+        return json.load(f)
+
 def quick_save(site_str, recipes):
     save_recipes(
         path.join(config.path_data, 'recipes_raw_{}.json'.format(site_str)),
@@ -175,6 +192,8 @@ if __name__ == '__main__':
     parser.add_argument('--fn', action='store_true', help='Food Network')
     parser.add_argument('--epi', action='store_true', help='Epicurious')
     parser.add_argument('--ar', action='store_true', help='All Recipes')
+    parser.add_argument('--append', action='store_true',
+                        help='Append scrapping run to existing JSON doc')
     parser.add_argument('--status', type=int, default=50, help='Print status interval')
     parser.add_argument('--start', type=int, default=1, help='Start page')
     parser.add_argument('--pages', type=int, default=3000, help='Number of pages to scrape')
