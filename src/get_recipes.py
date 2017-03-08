@@ -121,6 +121,7 @@ def scrape_recipe_box(scraper, site_str, start_page=1, num_pages=2000, status_in
             if i % status_interval == 0:
                 print('Scraping page {} of {}'.format(i + 1 - start_page, num_pages))
                 quick_save('ar', recipes)
+            time.sleep(args.sleep)
 
     print('Scraped {} recipes from {} in {:.0f} minutes'.format(
         len(recipes), site_str, (time.time() - start) / 60))
@@ -188,6 +189,8 @@ if __name__ == '__main__':
     parser.add_argument('--status', type=int, default=50, help='Print status interval')
     parser.add_argument('--start', type=int, default=1, help='Start page')
     parser.add_argument('--pages', type=int, default=3000, help='Number of pages to scrape')
+    parser.add_argument('--sleep', type=int, default=0,
+                        help='Seconds to wait before scraping next page')
     args = parser.parse_args()
     if args.fn:
         scrape_fn()
