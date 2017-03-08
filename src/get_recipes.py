@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 import sys
 from os import path
 import argparse
+from multiprocessing import Pool, cpu_count
 
 import config
 sys.path.append(config.path_scrapers)
@@ -101,18 +102,25 @@ def get_all_recipes_epi(page_num):
         return []
 
 
-def scrape_pages(scraper, site_str, start_page=1, num_pages=2000, status_interval=50):
+def scrape_recipe_box(scraper, site_str, start_page=1, num_pages=2000, status_interval=50):
 
     if args.append:
         recipes = quick_load(site_str)
     else:
         recipes = {}
+    page_range = range(start_page, num_pages + start_page)
     start = time.time()
-    for i in range(start_page, num_pages + start_page):
-        recipes.update(scraper(i))
-        if i % status_interval == 0:
-            print('Scraping page {} of {}'.format(i + 1 - start_page, num_pages))
-            quick_save('ar', recipes)
+    if args.multi:
+        pool = Pool(cpu_count() * 2)
+        results = pool.map(get_all_recipes_epi, page_range)
+        for r in results:
+            recipes.update(r)
+    else:
+        for i in page_range:
+            recipes.update(scraper(i))
+            if i % status_interval == 0:
+                print('Scraping page {} of {}'.format(i + 1 - start_page, num_pages))
+                quick_save('ar', recipes)
 
     print('Scraped {} recipes from {} in {:.0f} minutes'.format(
         len(recipes), site_str, (time.time() - start) / 60))
@@ -174,6 +182,7 @@ if __name__ == '__main__':
     parser.add_argument('--fn', action='store_true', help='Food Network')
     parser.add_argument('--epi', action='store_true', help='Epicurious')
     parser.add_argument('--ar', action='store_true', help='All Recipes')
+    parser.add_argument('--multi', action='store_true', help='Multi threading')
     parser.add_argument('--append', action='store_true',
                         help='Append scrapping run to existing JSON doc')
     parser.add_argument('--status', type=int, default=50, help='Print status interval')
