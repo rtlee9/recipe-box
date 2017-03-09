@@ -62,7 +62,7 @@ def get_all_recipes_fn(page_str, page_num):
         recipe_link_items = soup.select('div.o-Capsule__m-Body ul.m-PromoList li a')
         recipe_links = [r.attrs['href']for r in recipe_link_items]
         print('Read {} recipe links from {}'.format(len(recipe_links), url))
-        return {r: get_recipe(r) for r in recipe_links}
+        return recipe_links
     except (HTTPError, URLError):
         print('Could not parse page {}'.format(url))
         return []
@@ -127,13 +127,7 @@ def scrape_recipe_box(scraper, site_str, page_iter, status_interval=50):
     quick_save(site_str, recipes)
 
 
-def scrape_fn():
-    if args.append:
-        recipes = quick_load('fn')
-    else:
-        recipes = {}
-    start = time.time()
-
+def get_fn_letter_links():
     # get list of pages with links to recipes
     base_url = 'http://www.foodnetwork.com'
     search_url_str = 'recipes/a-z'
@@ -143,22 +137,31 @@ def scrape_fn():
         soup = BeautifulSoup(request.urlopen(
             request.Request(url, headers=HEADERS)).read(), "html.parser")
         page_link_items = soup.select('ul.o-IndexPagination__m-List li a')
-        page_links = [p['href'] for p in page_link_items]
+        letter_links = [p['href'] for p in page_link_items]
+        return letter_links
     except (HTTPError, URLError):
         print('Could not parse page {}'.format(url))
 
-    for i, page in enumerate(page_links):
-        page_num = 1
+def get_fn_recipe_links():
+
+    letter_links = get_fn_letter_links()
+    recipe_links = {}
+    page_num = 1
+
+    for page in letter_links:
         recipe_set = True
         while recipe_set:
             recipe_set = get_all_recipes_fn(path.basename(page), page_num)
-            recipes.update(recipe_set)
+            recipe_links[page_num] = []
+            recipe_links[page_num].extend(recipe_set)
             page_num += 1
-        quick_save('fn', recipes)
 
-    print('Scraped {} recipes from {} in {:.0f} minutes'.format(
-        len(recipes), 'Epicurious.com', (time.time() - start) / 60))
-    quick_save('fn', recipes)
+    return recipe_links
+
+def scrape_fn(page_num):
+    global recipe_links_dict
+    recipe_links = recipe_links_dict[page_num]
+    return {r: get_recipe(r) for r in recipe_links}
 
 def quick_load(site_str):
     return load_recipes(path.join(
@@ -192,7 +195,9 @@ if __name__ == '__main__':
                         help='Seconds to wait before scraping next page')
     args = parser.parse_args()
     if args.fn:
-        scrape_fn()
+        recipe_links_dict = get_fn_recipe_links()
+        page_iter = range(1, len(recipe_links_dict) + 1)
+        scrape_recipe_box(scrape_fn, 'fn', page_iter, args.status)
     if args.epi:
         page_iter = range(args.start, args.pages + args.start)
         scrape_recipe_box(get_all_recipes_epi, 'epi', page_iter, args.status)
