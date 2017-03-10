@@ -146,15 +146,22 @@ def get_fn_recipe_links():
 
     letter_links = get_fn_letter_links()
     recipe_links = {}
-    page_num = 1
+    page_tracker = 0
 
     for page in letter_links:
         recipe_set = True
+        page_num = 1
+        lag0 = 0
         while recipe_set:
+            t0 = time.time()
             recipe_set = get_all_recipes_fn(path.basename(page), page_num)
-            recipe_links[page_num] = []
-            recipe_links[page_num].extend(recipe_set)
+            lag1 = time.time() - t0
+            recipe_links[page_tracker] = []
+            recipe_links[page_tracker].extend(recipe_set)
             page_num += 1
+            page_tracker += 1
+            time.sleep(lag1 * .5 + lag0 * .5)
+            lag0 = lag1
 
     return recipe_links
 
