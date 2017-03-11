@@ -7,6 +7,10 @@ path_img = path.join(path_data, 'img')
 path_scrapers = path.join(path_src, 'recipe-scraper')
 path_outputs = path.join(path_base, 'outputs')
 
-# verify output path exists otherwise make it
-if not path.exists(path_data):
+# verify paths exist otherwise make them
+if not path.exists(path_outputs):
     makedirs(path_outputs)
+if not path.exists(path_data):
+    makedirs(path_data)
+if not path.exists(path_img):
+    makedirs(path_img)
