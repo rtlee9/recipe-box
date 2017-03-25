@@ -14,6 +14,6 @@ Scrape sets of recipes from food websites. Currently supports three websites in 
 * `$ python src/get_recipes.py --ar --sleep 200`
 
 ### Download pictures
-* `$ python src/get_pictures.py --filename "recipes_raw_fn.json"
-* `$ python src/get_pictures.py --filename "recipes_raw_epi.json"
-* `$ python src/get_pictures.py --filename "recipes_raw_ar.json"
+* `$ python src/get_pictures.py --filename "recipes_raw_fn.json"`
+* `$ python src/get_pictures.py --filename "recipes_raw_epi.json"`
+* `$ python src/get_pictures.py --filename "recipes_raw_ar.json"`
