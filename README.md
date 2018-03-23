@@ -1,10 +1,12 @@
 # Recipe box
 
-Scrape sets of recipes from food websites. Currently supports three websites in Python 3:
+Recipe box scrapes recipes from food websites. The following websites are currently supported (Python 3):
 
 * [Foodnetwork.com](http://www.foodnetwork.com/)
 * [Epicurious.com](http://www.epicurious.com/)
 * [Allrecipes.com](http://allrecipes.com/)
+
+Please note that web scraping may be prohibited under the terms of use, and I recommend adhering the terms of use of each website.
 
 ## Usage
 
